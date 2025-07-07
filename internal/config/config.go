@@ -1,33 +1,12 @@
 package config
 
 import (
+	"marketflow/internal/core/models"
 	"os"
 	"strconv"
 )
 
-type Config struct {
-	DB        DB
-	Redis     Redis
-	Port      string
-	Exchanges []string
-}
-
-type DB struct {
-	Host     string
-	Port     string
-	User     string
-	Password string
-	DBName   string
-	SSLMode  string
-}
-type Redis struct {
-	Host     string
-	Port     string
-	Password string
-	DB       string
-}
-
-func Load() *Config {
+func Load() *models.Config {
 	exchanges := []string{}
 	for i := 1; i <= 3; i++ {
 		key := "EXCHANGE" + strconv.Itoa(i)
@@ -37,8 +16,8 @@ func Load() *Config {
 		}
 	}
 
-	return &Config{
-		DB: DB{
+	return &models.Config{
+		DB: models.DB{
 			Host:     getEnv("POSTGRES_HOST", "localhost"),
 			Port:     getEnv("POSTGRES_PORT", "5432"),
 			User:     getEnv("POSTGRES_USER", "postgress"),
@@ -46,11 +25,11 @@ func Load() *Config {
 			DBName:   getEnv("POSTGRES_DB", "postgres"),
 			SSLMode:  getEnv("POSTGRES_SSLMODE", "disable"),
 		},
-		Redis: Redis{
+		Redis: models.Redis{
 			Host:     getEnv("REDIS_HOST", "localhost"),
 			Port:     getEnv("REDIS_PORT", "4444"),
 			Password: getEnv("REDIS_PASSWORD", ""),
-			DB:       getEnv("REDIS_DB", "0"),
+			DB:       getEnvInt("REDIS_DB", 0),
 		},
 		Port:      getEnv("PORT", "8080"),
 		Exchanges: exchanges,
@@ -63,4 +42,18 @@ func getEnv(key, fallback string) string {
 		return fallback
 	}
 	return val
+}
+
+func getEnvInt(key string, fallback int) int {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+
+	i, err := strconv.Atoi(val)
+	if err != nil {
+		return fallback
+	}
+
+	return i
 }
