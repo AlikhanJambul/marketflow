@@ -1,0 +1,72 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: marketflow_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./script/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: marketflow_redis
+    restart: always
+    command: redis-server --requirepass "${REDIS_PASSWORD}"
+    ports:
+      - "${REDIS_PORT}:6379"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marketflow_app
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    command: ./marketflow
+
+  exchange1:
+    image: alpine
+    container_name: exchange1-arm64
+    command: [ "sh", "-c", "while true; do (while true; do echo 'USD/USDT 1.01'; sleep 1; done) | nc -lk -p 40101; done" ]
+    ports:
+      - "40101:40101"
+
+  exchange2:
+    image: alpine
+    container_name: exchange2-arm64
+    command: [ "sh", "-c", "while true; do (while true; do echo 'EUR/USDT 1.23'; sleep 1; done) | nc -lk -p 40102; done" ]
+    ports:
+      - "40102:40102"
+
+  exchange3:
+    image: alpine
+    container_name: exchange3-arm64
+    command: [ "sh", "-c", "while true; do (while true; do echo 'BTC/USDT 64000.0'; sleep 1; done) | nc -lk -p 40103; done" ]
+    ports:
+      - "40103:40103"
+
+
+
+volumes:
+  pgdata:

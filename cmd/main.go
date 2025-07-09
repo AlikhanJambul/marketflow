@@ -1,35 +1,58 @@
-package cmd
+package main
 
 import (
+	"fmt"
 	"log/slog"
-	"marketflow/internal/adapters/database"
 	"marketflow/internal/adapters/exchange"
+	"marketflow/internal/adapters/postgres"
 	"marketflow/internal/adapters/redis"
-	"marketflow/internal/config"
-	"marketflow/internal/core/models"
+	"marketflow/internal/application/worker"
+	"marketflow/internal/core/config"
+	"marketflow/internal/domain/models"
 	"net/http"
+	"os"
 )
 
 func main() {
 	cfg := config.Load()
 
-	_, err := database.ConnDb(cfg.DB)
+	fmt.Println(cfg)
+
+	db, err := postgres.ConnDb(cfg.DB)
 	if err != nil {
-		slog.Error("database didn't connect")
-		return
+		slog.Error("postgres didn't connect")
+		os.Exit(1)
 	}
 
-	_ = redis.ConnRedis(cfg.Redis)
+	rdb := redis.ConnRedis(cfg.Redis)
 
-	sourseOne := make(chan models.Exchange, 333)
-	//sourseTwo := make(chan models.Exchange, 333)
-	//sourseThree := make(chan models.Exchange, 333)
+	repo := postgres.NewRepository(db)
+	_ = redis.NewRedisCache(rdb)
 
-	sourse := make([]chan models.Exchange, 333)
+	sourseArr := []models.Sourse{}
 
-	exchange.GetDataBirge(cfg.Exchanges, sourseOne)
+	for _, v := range cfg.Exchanges {
+		s := make(chan models.Prices, 30)
+		sourse := models.Sourse{SourseChan: s, Addr: v}
+		sourseArr = append(sourseArr, sourse)
+	}
+
+	resultChan := make(chan models.Prices, 90)
+
+	exchange.GetDataBirge(sourseArr)
+
+	worker.StartFanInWorkers(sourseArr, resultChan)
+
+	inserter := worker.BatchInserter{
+		ResultChan: resultChan,
+		Repo:       repo,
+	}
+
+	go inserter.StartBatchInsert()
 
 	mux := http.NewServeMux()
 
-	http.ListenAndServe(cfg.Port, mux)
+	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
+		slog.Error("server failed", slog.String("error", err.Error()))
+	}
 }
