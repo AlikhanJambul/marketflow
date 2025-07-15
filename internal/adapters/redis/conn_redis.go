@@ -12,15 +12,5 @@ func ConnRedis(redisData models.Redis) *redis.Client {
 		DB:       redisData.DB,
 	})
 
-	//err := rdb.Set(ctx, "mykey", "Hello, Redis!", 0).Err()
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//val, err := rdb.Get(ctx, "mykey").Result()
-	//if err != nil {
-	//	panic(err)
-	//}
-
 	return rdb
 }

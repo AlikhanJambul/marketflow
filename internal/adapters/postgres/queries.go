@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"marketflow/internal/core/ports"
 	"marketflow/internal/domain/models"
+	"marketflow/internal/domain/ports"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ func NewRepository(db *sql.DB) ports.PostgresDB {
 	return &Repository{db: db}
 }
 
-func (r Repository) BatchInsert(ctx context.Context, prices []models.Prices) error {
+func (r *Repository) BatchInsert(ctx context.Context, prices []models.Prices) error {
 	query := "INSERT INTO birge_prices (symbol, price, timestamp, exchange) VALUES "
 	args := []interface{}{}
 	values := []string{}

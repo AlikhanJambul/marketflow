@@ -3,8 +3,8 @@ package worker
 import (
 	"context"
 	"log/slog"
-	"marketflow/internal/core/ports"
 	"marketflow/internal/domain/models"
+	"marketflow/internal/domain/ports"
 	"time"
 )
 
