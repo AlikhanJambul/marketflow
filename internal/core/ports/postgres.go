@@ -1,7 +1,10 @@
 package ports
 
-import "marketflow/internal/domain/models"
+import (
+	"context"
+	"marketflow/internal/domain/models"
+)
 
 type PostgresDB interface {
-	BatchInsert([]models.Prices) error
+	BatchInsert(context.Context, []models.Prices) error
 }

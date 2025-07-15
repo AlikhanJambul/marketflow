@@ -3,8 +3,8 @@ package models
 import "time"
 
 type Prices struct {
-	PairName  string    `json:"pair_name,omitempty"`
-	Value     float64   `json:"value,omitempty"`
+	Symbol    string    `json:"symbol,omitempty"`
+	Price     float64   `json:"price,omitempty"`
 	Timestamp time.Time `json:"timestamp"`
 	Exchange  string    `json:"exchange,omitempty"`
 }

@@ -1,7 +1,7 @@
-CREATE TABLE aggregated_prices (
+CREATE TABLE birge_prices (
                                    id SERIAL PRIMARY KEY,
-                                   pair_name VARCHAR(255),
-                                   exchange VARCHAR(255),
+                                   symbol VARCHAR(255),
+                                   price FLOAT,
                                    timestamp TIMESTAMPTZ,
-                                   value FLOAT
+                                   exchange VARCHAR(255)
 );

@@ -32,26 +32,24 @@ func main() {
 	sourseArr := []models.Sourse{}
 
 	for _, v := range cfg.Exchanges {
-		s := make(chan models.Prices, 30)
+		s := make(chan models.Prices, 1000)
 		sourse := models.Sourse{SourseChan: s, Addr: v}
 		sourseArr = append(sourseArr, sourse)
 	}
 
-	resultChan := make(chan models.Prices, 90)
-
-	exchange.GetDataBirge(sourseArr)
-
-	worker.StartFanInWorkers(sourseArr, resultChan)
-
-	inserter := worker.BatchInserter{
-		ResultChan: resultChan,
-		Repo:       repo,
+	var chans []<-chan models.Prices
+	for _, s := range sourseArr {
+		chans = append(chans, s.SourseChan)
 	}
 
-	go inserter.StartBatchInsert()
+	go exchange.GetDataBirge(sourseArr)
+	resultChan := worker.FanIn(chans...)
+
+	fmt.Println(len(resultChan))
+
+	worker.StartBatchInsertLoop(resultChan, repo)
 
 	mux := http.NewServeMux()
-
 	if err := http.ListenAndServe(":"+cfg.Port, mux); err != nil {
 		slog.Error("server failed", slog.String("error", err.Error()))
 	}

@@ -46,23 +46,23 @@ services:
     command: ./marketflow
 
   exchange1:
-    image: alpine
-    container_name: exchange1-arm64
-    command: [ "sh", "-c", "while true; do (while true; do echo 'USD/USDT 1.01'; sleep 1; done) | nc -lk -p 40101; done" ]
+    image: exchange1
+    container_name: exchange1
+    restart: always
     ports:
       - "40101:40101"
 
   exchange2:
-    image: alpine
-    container_name: exchange2-arm64
-    command: [ "sh", "-c", "while true; do (while true; do echo 'EUR/USDT 1.23'; sleep 1; done) | nc -lk -p 40102; done" ]
+    image: exchange2
+    container_name: exchange2
+    restart: always
     ports:
       - "40102:40102"
 
   exchange3:
-    image: alpine
-    container_name: exchange3-arm64
-    command: [ "sh", "-c", "while true; do (while true; do echo 'BTC/USDT 64000.0'; sleep 1; done) | nc -lk -p 40103; done" ]
+    image: exchange3
+    container_name: exchange3
+    restart: always
     ports:
       - "40103:40103"
 
