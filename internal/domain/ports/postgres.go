@@ -15,4 +15,5 @@ type PostgresDB interface {
 	GetLowestSymExc(context.Context, string, string) (models.Prices, error)
 	GetAvgSym(context.Context, string) (models.Prices, error)
 	GetAvgSymExc(context.Context, string, string) (models.Prices, error)
+	CheckConn() error
 }

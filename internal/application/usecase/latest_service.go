@@ -27,7 +27,7 @@ func (s *Service) GetLatestSymService(symbol string) (models.Prices, error) {
 
 		err = s.Cache.Set(key, resRepo)
 		if err != nil {
-			return models.Prices{}, err
+			slog.Error(err.Error())
 		}
 
 		return resRepo, nil

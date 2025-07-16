@@ -44,3 +44,7 @@ func (r *RedisCache) Get(s string) (models.Prices, error) {
 
 	return result, nil
 }
+
+func (r *RedisCache) Check(ctx context.Context) error {
+	return r.rbd.Ping(ctx).Err()
+}

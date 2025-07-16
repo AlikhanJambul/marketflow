@@ -14,3 +14,9 @@ type Redis struct {
 	Password string
 	DB       int
 }
+
+type HealthResponse struct {
+	Status   string `json:"status"`
+	Redis    string `json:"redis"`
+	Postgres string `json:"postgres"`
+}

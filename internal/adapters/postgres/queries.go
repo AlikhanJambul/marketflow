@@ -34,3 +34,7 @@ func (r *Repository) BatchInsert(ctx context.Context, prices []models.Prices) er
 	slog.Info("Работает!!!!!")
 	return err
 }
+
+func (r *Repository) CheckConn() error {
+	return r.db.Ping()
+}

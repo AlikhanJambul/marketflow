@@ -26,7 +26,7 @@ func InitNewServer(h *Handler) *http.ServeMux {
 	mux.HandleFunc("POST /mode/live", func(w http.ResponseWriter, r *http.Request) {})
 
 	// System Health
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("GET /health", h.CheckHealth)
 
 	return mux
 }

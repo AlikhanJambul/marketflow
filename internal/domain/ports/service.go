@@ -1,6 +1,9 @@
 package ports
 
-import "marketflow/internal/domain/models"
+import (
+	"context"
+	"marketflow/internal/domain/models"
+)
 
 type ServiceMethods interface {
 	GetLatestSymService(string) (models.Prices, error)
@@ -11,4 +14,5 @@ type ServiceMethods interface {
 	GetLowestSymExcService(string, string) (models.Prices, error)
 	GetAvgSymService(string) (models.Prices, error)
 	GetAvgSymExcService(string, string) (models.Prices, error)
+	CheckRedisDb(ctx context.Context) models.HealthResponse
 }
