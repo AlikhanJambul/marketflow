@@ -1,0 +1,5 @@
+I can store intefaces, config, error, utils and others pkg here.
+
+Added Handler struct to store service methods and use them in HandleFunc
+
+I created endpoint that should return latest data based on time.

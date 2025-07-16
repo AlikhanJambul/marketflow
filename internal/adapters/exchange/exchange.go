@@ -6,11 +6,14 @@ import (
 	"log/slog"
 	"marketflow/internal/domain/models"
 	"net"
+	"strings"
 	"time"
 )
 
 func GetDataBirge(sources []models.Sourse) {
 	for _, source := range sources {
+		exchange := strings.Split(source.Addr, ":")
+		slog.Info(exchange[0])
 		go func(addr string, out chan<- models.Prices) {
 			//defer close(out)
 
@@ -38,7 +41,7 @@ func GetDataBirge(sources []models.Sourse) {
 				}
 
 				out <- models.Prices{
-					Exchange:  addr,
+					Exchange:  exchange[0],
 					Symbol:    data.Symbol,
 					Price:     data.Price,
 					Timestamp: time.UnixMilli(data.Timestamp),
