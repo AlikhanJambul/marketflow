@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"marketflow/internal/domain/ports"
 	"net/http"
 )
 
-func InitNewServer() *http.ServeMux {
+func InitNewServer(h *Handler) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	// Market Data API
-	mux.HandleFunc("GET /prices/latest/{symbol}", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("/prices/latest/{symbol}", h.LatestSymbol)
 	mux.HandleFunc("GET /prices/latest/{exchange}/{symbol}", func(w http.ResponseWriter, r *http.Request) {})
 
 	mux.HandleFunc("GET /prices/highest/{symbol}", func(w http.ResponseWriter, r *http.Request) {})
@@ -28,4 +29,14 @@ func InitNewServer() *http.ServeMux {
 	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {})
 
 	return mux
+}
+
+type Handler struct {
+	Service ports.ServiceMethods
+}
+
+func InitHandlers(service ports.ServiceMethods) *Handler {
+	return &Handler{
+		Service: service,
+	}
 }

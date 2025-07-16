@@ -7,5 +7,5 @@ import (
 
 type PostgresDB interface {
 	BatchInsert(context.Context, []models.Prices) error
-	GetLastestBySymbol(context.Context) (models.Prices, error)
+	GetLastestBySymbol(context.Context, string) (models.Prices, error)
 }

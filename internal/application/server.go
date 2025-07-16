@@ -31,7 +31,7 @@ func RunServer() {
 	go exchange.GetDataBirge(sourceArr)
 	resultChan := worker.FanIn(chans...)
 
-	worker.StartBatchInsertLoop(resultChan, repo)
+	go worker.StartBatchInsertLoop(resultChan, repo)
 
 	addr := ":" + cfg.Port
 	slog.Info("Сервер запущен", slog.String("port", cfg.Port))

@@ -21,6 +21,7 @@ var (
 	Mux      *http.ServeMux
 	Valid    *utils.Validation
 	Services ports.ServiceMethods
+	Handlers *handlers.Handler
 )
 
 func init() {
@@ -37,9 +38,9 @@ func init() {
 	Cache = redis.NewRedisCache(rdb)
 	Valid = utils.NewValidation()
 
-	Mux = handlers.InitNewServer()
-
 	Services = usecase.InitService(Repo, Cache, Valid)
+	Handlers = handlers.InitHandlers(Services)
+	Mux = handlers.InitNewServer(Handlers)
 
 	slog.Info("Инициализация завершена успешно")
 }

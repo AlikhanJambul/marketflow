@@ -38,20 +38,34 @@ func StartBatchInsertLoop(input <-chan models.Prices, r ports.PostgresDB) {
 
 	for {
 		select {
-		case data := <-input:
+		case data, ok := <-input:
+			if !ok {
+				slog.Warn("Канал закрыт, записываю остатки и выхожу...")
+				if len(batch) > 0 {
+					if err := r.BatchInsert(context.Background(), batch); err != nil {
+						slog.Error(err.Error())
+					}
+				}
+				return
+			}
+
 			batch = append(batch, data)
-
 			if len(batch) >= 3000 {
-				slog.Info("Запрос отправлен")
-				r.BatchInsert(context.Background(), batch)
+				slog.Info("BatchInsert: 3000 записей")
+				if err := r.BatchInsert(context.Background(), batch); err != nil {
+					slog.Error(err.Error())
+				}
 				batch = batch[:0]
 			}
 
-		case <-ticker.C:
-			if len(batch) > 0 {
-				r.BatchInsert(context.Background(), batch)
-				batch = batch[:0]
-			}
+			//case <-ticker.C:
+			//	if len(batch) > 0 {
+			//		slog.Info("BatchInsert: по таймеру, кол-во:", slog.Int("count", len(batch)))
+			//		if err := r.BatchInsert(context.Background(), batch); err != nil {
+			//			slog.Error(err.Error())
+			//		}
+			//		batch = batch[:0]
+			//	}
 		}
 	}
 }

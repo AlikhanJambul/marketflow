@@ -12,7 +12,7 @@ import (
 func GetDataBirge(sources []models.Sourse) {
 	for _, source := range sources {
 		go func(addr string, out chan<- models.Prices) {
-			defer close(out)
+			//defer close(out)
 
 			conn, err := net.Dial("tcp", addr)
 			if err != nil {
