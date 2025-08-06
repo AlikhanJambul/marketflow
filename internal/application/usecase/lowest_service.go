@@ -8,9 +8,9 @@ import (
 	"marketflow/internal/domain/models"
 )
 
-func (s *Service) GetLowestSymService(symbol string) (models.Prices, error) {
+func (s *Service) GetLowestSymService(symbol string) (models.PriceStats, error) {
 	if ok := s.Valid.CheckSymbol(symbol); !ok {
-		return models.Prices{}, apperrors.ErrInvalidSymbol
+		return models.PriceStats{}, apperrors.ErrInvalidSymbol
 	}
 
 	key := fmt.Sprintf("lowest/%s", symbol)
@@ -21,12 +21,12 @@ func (s *Service) GetLowestSymService(symbol string) (models.Prices, error) {
 
 		resultRepo, err := s.Repo.GetLowestSym(context.Background(), symbol)
 		if err != nil {
-			return models.Prices{}, err
+			return models.PriceStats{}, err
 		}
 
 		err = s.Cache.Set(key, resultRepo)
 		if err != nil {
-			return models.Prices{}, err
+			return models.PriceStats{}, err
 		}
 
 		return resultRepo, nil
@@ -35,9 +35,9 @@ func (s *Service) GetLowestSymService(symbol string) (models.Prices, error) {
 	return result, nil
 }
 
-func (s *Service) GetLowestSymExcService(symbol, exchange string) (models.Prices, error) {
+func (s *Service) GetLowestSymExcService(symbol, exchange string) (models.PriceStats, error) {
 	if ok := s.Valid.CheckAll(symbol, exchange); !ok {
-		return models.Prices{}, apperrors.ErrInavalidBody
+		return models.PriceStats{}, apperrors.ErrInavalidBody
 	}
 
 	key := fmt.Sprintf("lowest/%s/%s", exchange, symbol)
@@ -46,12 +46,12 @@ func (s *Service) GetLowestSymExcService(symbol, exchange string) (models.Prices
 	if err != nil {
 		res, err := s.Repo.GetLowestSymExc(context.Background(), symbol, exchange)
 		if err != nil {
-			return models.Prices{}, err
+			return models.PriceStats{}, err
 		}
 
 		err = s.Cache.Set(key, res)
 		if err != nil {
-			return models.Prices{}, err
+			return models.PriceStats{}, err
 		}
 
 		return res, nil

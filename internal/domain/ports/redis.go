@@ -6,7 +6,9 @@ import (
 )
 
 type Cache interface {
-	Get(string) (models.Prices, error)
-	Set(string, models.Prices) error
+	Get(string) (models.PriceStats, error)
+	Set(string, models.PriceStats) error
+	SetLatest(string, string, models.LatestPrice) error
+	GetLatest(string) (models.LatestPrice, error)
 	Check(context.Context) error
 }

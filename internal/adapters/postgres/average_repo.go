@@ -5,35 +5,35 @@ import (
 	"marketflow/internal/domain/models"
 )
 
-func (r *Repository) GetAvgSym(ctx context.Context, symbol string) (models.Prices, error) {
-	var result models.Prices
+func (r *Repository) GetAvgSym(ctx context.Context, symbol string) (models.PriceStats, error) {
+	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
-		SELECT symbol, AVG(price)
+		SELECT pair_name, AVG(average_price), exchange
 		FROM birge_prices
-		WHERE symbol = $1
-		GROUP BY symbol
-	`, symbol).Scan(&result.Symbol, &result.Price)
+		WHERE pair_name = $1
+		GROUP BY pair_name, exchange
+	`, symbol).Scan(&result.Pair, &result.Average, &result.Exchange)
 
 	if err != nil {
-		return models.Prices{}, err
+		return models.PriceStats{}, err
 	}
 
 	return result, nil
 }
 
-func (r *Repository) GetAvgSymExc(ctx context.Context, symbol, exchange string) (models.Prices, error) {
-	var result models.Prices
+func (r *Repository) GetAvgSymExc(ctx context.Context, symbol, exchange string) (models.PriceStats, error) {
+	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
-		SELECT symbol, AVG(price), exchange
+		SELECT pair_name, AVG(average_price), exchange 
 		FROM birge_prices
-		WHERE symbol = $1 AND exchange = $2
-		GROUP BY symbol, exchange
-	`, symbol, exchange).Scan(&result.Symbol, &result.Price, &result.Exchange)
+		WHERE pair_name = $1 AND exchange = $2
+		GROUP BY pair_name, exchange
+	`, symbol, exchange).Scan(&result.Pair, &result.Average, &result.Exchange)
 
 	if err != nil {
-		return models.Prices{}, err
+		return models.PriceStats{}, err
 	}
 
 	return result, nil

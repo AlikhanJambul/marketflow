@@ -6,14 +6,12 @@ import (
 )
 
 type PostgresDB interface {
-	BatchInsert(context.Context, []models.Prices) error
-	GetLastestSym(context.Context, string) (models.Prices, error)
-	GetLatestSymExc(context.Context, string, string) (models.Prices, error)
-	GetHighestSym(context.Context, string) (models.Prices, error)
-	GetHighestSymExc(context.Context, string, string) (models.Prices, error)
-	GetLowestSym(context.Context, string) (models.Prices, error)
-	GetLowestSymExc(context.Context, string, string) (models.Prices, error)
-	GetAvgSym(context.Context, string) (models.Prices, error)
-	GetAvgSymExc(context.Context, string, string) (models.Prices, error)
+	NewBatchInsert(ctx context.Context, prices []models.PriceStats) error
+	GetHighestSym(context.Context, string) (models.PriceStats, error)
+	GetHighestSymExc(context.Context, string, string) (models.PriceStats, error)
+	GetLowestSym(context.Context, string) (models.PriceStats, error)
+	GetLowestSymExc(context.Context, string, string) (models.PriceStats, error)
+	GetAvgSym(context.Context, string) (models.PriceStats, error)
+	GetAvgSymExc(context.Context, string, string) (models.PriceStats, error)
 	CheckConn() error
 }

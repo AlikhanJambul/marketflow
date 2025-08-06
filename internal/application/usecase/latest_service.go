@@ -1,67 +1,50 @@
 package usecase
 
 import (
-	"context"
 	"fmt"
+	"github.com/redis/go-redis/v9"
 	"log/slog"
 	"marketflow/internal/core/apperrors"
 	"marketflow/internal/domain/models"
 )
 
-func (s *Service) GetLatestSymService(symbol string) (models.Prices, error) {
+func (s *Service) GetLatestSymService(symbol string) (models.LatestPrice, error) {
 	if ok := s.Valid.CheckSymbol(symbol); !ok {
-		return models.Prices{}, apperrors.ErrInvalidSymbol
+		return models.LatestPrice{}, apperrors.ErrInvalidSymbol
 	}
 
 	key := fmt.Sprintf("latest/%s", symbol)
 
-	res, err := s.Cache.Get(key)
+	res, err := s.Cache.GetLatest(key)
+	if err == redis.Nil {
+		slog.Info("GetLatestSymService: key not found")
+		return models.LatestPrice{}, apperrors.ErrRedisNil
+	}
 	if err != nil {
 		slog.Error(err.Error())
-		slog.Info("I've not took data from cache")
-
-		resRepo, err := s.Repo.GetLastestSym(context.Background(), symbol)
-		if err != nil {
-			return models.Prices{}, err
-		}
-
-		err = s.Cache.Set(key, resRepo)
-		if err != nil {
-			slog.Error(err.Error())
-		}
-
-		return resRepo, nil
+		return models.LatestPrice{}, err
 	}
 
-	slog.Info("I've took data from cache")
 	return res, nil
 }
 
-func (s *Service) GetLatestSymExcService(symbol, exchange string) (models.Prices, error) {
+func (s *Service) GetLatestSymExcService(symbol, exchange string) (models.LatestPrice, error) {
 	if ok := s.Valid.CheckAll(symbol, exchange); !ok {
-		return models.Prices{}, apperrors.ErrInavalidBody
+		return models.LatestPrice{}, apperrors.ErrInavalidBody
 	}
 
 	key := fmt.Sprintf("latest/%s/%s", exchange, symbol)
 
-	res, err := s.Cache.Get(key)
-	if err != nil {
-		slog.Error(err.Error())
-		slog.Info("I've not took data from cache")
-
-		res, err := s.Repo.GetLatestSymExc(context.Background(), symbol, exchange)
-		if err != nil {
-			return models.Prices{}, err
-		}
-
-		err = s.Cache.Set(key, res)
-		if err != nil {
-			return models.Prices{}, err
-		}
-
-		return res, nil
+	res, err := s.Cache.GetLatest(key)
+	if err == redis.Nil {
+		slog.Info("GetLatestSymExcService: key not found")
+		return models.LatestPrice{}, apperrors.ErrRedisNil
 	}
 
-	slog.Info("I've took data from cache")
+	if err != nil {
+		slog.Error(err.Error())
+		return models.LatestPrice{}, err
+	}
+
 	return res, nil
 }

@@ -5,37 +5,37 @@ import (
 	"marketflow/internal/domain/models"
 )
 
-func (r *Repository) GetHighestSym(ctx context.Context, symbol string) (models.Prices, error) {
-	var result models.Prices
+func (r *Repository) GetHighestSym(ctx context.Context, symbol string) (models.PriceStats, error) {
+	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
-		SELECT symbol, price, timestamp
+		SELECT pair_name, max_price, timestamp, exchange
 		FROM birge_prices
-		WHERE symbol = $1
-		ORDER BY price DESC
+		WHERE pair_name = $1
+		ORDER BY max_price DESC
 		LIMIT 1
-`, symbol).Scan(&result.Symbol, &result.Price, &result.Timestamp)
+`, symbol).Scan(&result.Pair, &result.Max, &result.Timestamp, &result.Exchange)
 
 	if err != nil {
-		return models.Prices{}, err
+		return models.PriceStats{}, err
 	}
 
 	return result, nil
 }
 
-func (r *Repository) GetHighestSymExc(ctx context.Context, symbol string, exchange string) (models.Prices, error) {
-	var result models.Prices
+func (r *Repository) GetHighestSymExc(ctx context.Context, symbol string, exchange string) (models.PriceStats, error) {
+	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
-		SELECT symbol, price, timestamp, exchange
+		SELECT pair_name, max_price, timestamp, exchange
 		FROM birge_prices
-		WHERE symbol = $1 AND exchange = $2
-		ORDER BY price DESC
+		WHERE pair_name = $1 AND exchange = $2
+		ORDER BY max_price DESC
 		LIMIT 1
-`, symbol, exchange).Scan(&result.Symbol, &result.Price, &result.Timestamp, &result.Exchange)
+`, symbol, exchange).Scan(&result.Pair, &result.Max, &result.Timestamp, &result.Exchange)
 
 	if err != nil {
-		return models.Prices{}, err
+		return models.PriceStats{}, err
 	}
 
 	return result, nil

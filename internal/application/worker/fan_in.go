@@ -36,7 +36,7 @@ func StartFanInWorkers(sources []models.Sourse, out chan<- models.Prices) {
 }
 
 func FanIn(sources ...<-chan models.Prices) <-chan models.Prices {
-	out := make(chan models.Prices, 3000)
+	out := make(chan models.Prices, 45)
 
 	for _, ch := range sources {
 		go func(c <-chan models.Prices) {

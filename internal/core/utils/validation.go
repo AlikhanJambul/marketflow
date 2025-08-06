@@ -47,3 +47,11 @@ func (v *Validation) CheckAll(symbol, exchange string) bool {
 
 	return true
 }
+
+func LastPrice(prices []float64) float64 {
+	if len(prices) == 0 {
+		return 0.0
+	}
+
+	return prices[len(prices)-1]
+}

@@ -6,13 +6,13 @@ import (
 )
 
 type ServiceMethods interface {
-	GetLatestSymService(string) (models.Prices, error)
-	GetLatestSymExcService(string, string) (models.Prices, error)
-	GetHighestSymService(string) (models.Prices, error)
-	GetHighestSymExcService(string, string) (models.Prices, error)
-	GetLowestSymService(string) (models.Prices, error)
-	GetLowestSymExcService(string, string) (models.Prices, error)
-	GetAvgSymService(string) (models.Prices, error)
-	GetAvgSymExcService(string, string) (models.Prices, error)
+	GetLatestSymService(string) (models.LatestPrice, error)
+	GetLatestSymExcService(string, string) (models.LatestPrice, error)
+	GetHighestSymService(string) (models.PriceStats, error)
+	GetHighestSymExcService(string, string) (models.PriceStats, error)
+	GetLowestSymService(string) (models.PriceStats, error)
+	GetLowestSymExcService(string, string) (models.PriceStats, error)
+	GetAvgSymService(string) (models.PriceStats, error)
+	GetAvgSymExcService(string, string) (models.PriceStats, error)
 	CheckRedisDb(ctx context.Context) models.HealthResponse
 }
