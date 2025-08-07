@@ -5,11 +5,12 @@ import (
 	"log/slog"
 	"marketflow/internal/application/mode"
 	"marketflow/internal/core/utils"
+	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
 	"net/http"
 )
 
-func InitNewServer(h *Handler) *http.ServeMux {
+func InitNewServer(h *Handler, out chan<- models.Prices) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	// Market Data API
@@ -26,8 +27,8 @@ func InitNewServer(h *Handler) *http.ServeMux {
 	mux.HandleFunc("GET /prices/average/{exchange}/{symbol}", h.GetAvgSymExc)
 
 	// Data Mode API
-	mux.HandleFunc("POST /mode/test", h.SetMode)
-	mux.HandleFunc("POST /mode/live", h.SetMode)
+	mux.HandleFunc("POST /mode/test", h.SetModeTest(out))
+	mux.HandleFunc("POST /mode/live", h.SetModeLive(out))
 
 	// System Health
 	mux.HandleFunc("GET /health", h.CheckHealth)
@@ -47,14 +48,32 @@ func InitHandlers(service ports.ServiceMethods, manager *mode.Manager) *Handler 
 	}
 }
 
-func (h *Handler) SetMode(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+func (h *Handler) SetModeTest(input chan<- models.Prices) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.Background()
 
-	if _, err := h.Manager.Start(ctx, mode.Test); err != nil {
-		slog.Error(err.Error())
-		utils.ErrResponseInJson(w, err)
-		return
+		if err := h.Manager.Start(ctx, "test", input); err != nil {
+			slog.Error(err.Error())
+			utils.ErrResponseInJson(w, err)
+			return
+		}
+
+		utils.ResponseInJson(w, 200, "ok!")
 	}
 
-	utils.ResponseInJson(w, 200, "ok!")
+}
+
+func (h *Handler) SetModeLive(input chan<- models.Prices) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.Background()
+
+		if err := h.Manager.Start(ctx, "live", input); err != nil {
+			slog.Error(err.Error())
+			utils.ErrResponseInJson(w, err)
+			return
+		}
+
+		utils.ResponseInJson(w, 200, "ok!")
+	}
+
 }

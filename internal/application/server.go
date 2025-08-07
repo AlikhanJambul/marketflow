@@ -3,9 +3,11 @@ package application
 import (
 	"context"
 	"log/slog"
+	"marketflow/internal/adapters/handlers"
 	"marketflow/internal/application/aggregator"
 	"marketflow/internal/application/worker"
 	"marketflow/internal/bootstrap"
+	"marketflow/internal/domain/models"
 	"net/http"
 	"os"
 	"os/signal"
@@ -17,27 +19,37 @@ func RunServer() {
 	cfg := bootstrap.Cfg
 	repo := bootstrap.Repo
 	cache := bootstrap.Cache
-	mux := bootstrap.Mux
+	//mux := bootstrap.Mux
 	manager := bootstrap.Manager
+	handler := bootstrap.Handlers
 
 	ctx, close := context.WithCancel(context.Background())
 	defer close()
 
-	chans, err := manager.Start(ctx, "live")
+	input := make(chan models.Prices, 50)
+	output := make(chan models.Prices, 50)
+
+	agr := aggregator.NewAggregator(repo, cache, output)
+
+	go agr.Start(ctx)
+
+	for i := 0; i <= 5; i++ {
+		pool := worker.Worker{
+			InputCh:  input,
+			OutputCh: output,
+		}
+		go pool.FanIn()
+	}
+
+	err := manager.Start(ctx, "live", input)
 	if err != nil {
 		slog.Error(err.Error())
 		return
 	}
 
-	resultChan := worker.FanIn(chans...)
-
-	agr := aggregator.NewAggregator(repo, cache, resultChan)
-
-	go agr.Start(ctx)
-
 	svr := http.Server{
 		Addr:    ":" + cfg.Port,
-		Handler: mux,
+		Handler: handlers.InitNewServer(handler, input),
 	}
 
 	if err := svr.ListenAndServe(); err != nil {

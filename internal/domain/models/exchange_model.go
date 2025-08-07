@@ -25,7 +25,6 @@ type LatestPrice struct {
 	Price     float64   `json:"price,omitempty"`
 }
 
-type Sourse struct {
-	SourseChan chan Prices
-	Addr       string
-}
+//type Sourse struct {
+//	Addr       string
+//}

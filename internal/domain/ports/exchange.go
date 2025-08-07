@@ -1,8 +1,11 @@
 package ports
 
-import "context"
+import (
+	"context"
+	"marketflow/internal/domain/models"
+)
 
 type Client interface {
-	Start(ctx context.Context) error
+	Start(ctx context.Context, out chan<- models.Prices) error
 	Stop()
 }

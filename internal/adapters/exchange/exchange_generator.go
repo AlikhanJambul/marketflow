@@ -2,6 +2,7 @@ package exchange
 
 import (
 	"context"
+	"log/slog"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
 	"math/rand"
@@ -9,19 +10,18 @@ import (
 )
 
 type TestClient struct {
-	out      chan<- models.Prices
 	exchange string
 	stopCh   chan struct{}
 }
 
-func NewTestClient(out chan<- models.Prices, exchange string) ports.Client {
+func NewTestClient(exchange string) ports.Client {
 	return &TestClient{
-		out:      out,
 		exchange: exchange,
+		stopCh:   make(chan struct{}),
 	}
 }
 
-func (c *TestClient) Start(ctx context.Context) error {
+func (c *TestClient) Start(ctx context.Context, out chan<- models.Prices) error {
 	pairs := []string{"BTCUSDT", "ETHUSDT", "DOGEUSDT", "TONUSDT", "SOLUSDT"}
 	ticker := time.NewTicker(1 * time.Second)
 
@@ -36,7 +36,7 @@ func (c *TestClient) Start(ctx context.Context) error {
 					Exchange:  c.exchange,
 				}
 
-				c.out <- price
+				out <- price
 			}
 		case <-c.stopCh:
 			return nil
@@ -47,6 +47,7 @@ func (c *TestClient) Start(ctx context.Context) error {
 
 func (c *TestClient) Stop() {
 	close(c.stopCh)
+	slog.Info("!")
 	return
 }
 

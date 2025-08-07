@@ -11,15 +11,14 @@ import (
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
-	"net/http"
 	"os"
 )
 
 var (
-	Cfg      *models.Config
-	Repo     ports.PostgresDB
-	Cache    ports.Cache
-	Mux      *http.ServeMux
+	Cfg   *models.Config
+	Repo  ports.PostgresDB
+	Cache ports.Cache
+	//Mux      *http.ServeMux
 	Valid    *utils.Validation
 	Services ports.ServiceMethods
 	Handlers *handlers.Handler
@@ -43,7 +42,6 @@ func init() {
 	Manager = mode.NewManager(Cfg, "test")
 	Services = usecase.InitService(Repo, Cache, Valid)
 	Handlers = handlers.InitHandlers(Services, Manager)
-	Mux = handlers.InitNewServer(Handlers)
 
 	slog.Info("Инициализация завершена успешно")
 }

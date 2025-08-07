@@ -15,21 +15,19 @@ import (
 type LiveClient struct {
 	name   string
 	addr   string
-	out    chan<- models.Prices
 	conn   net.Conn
 	stopCh chan struct{}
 }
 
-func NewBirgeClient(name, addr string, out chan<- models.Prices) ports.Client {
+func NewBirgeClient(name, addr string) ports.Client {
 	return &LiveClient{
 		name:   name,
 		addr:   addr,
-		out:    out,
 		stopCh: make(chan struct{}),
 	}
 }
 
-func (c *LiveClient) Start(ctx context.Context) error {
+func (c *LiveClient) Start(ctx context.Context, out chan<- models.Prices) error {
 	slog.Info("starting birge client", "exchange", c.name, "addr", c.addr)
 
 	for {
@@ -41,7 +39,7 @@ func (c *LiveClient) Start(ctx context.Context) error {
 			slog.Info("birge client stopped manually", "exchange", c.name)
 			return nil
 		default:
-			if err := c.connectAndRead(ctx); err != nil {
+			if err := c.connectAndRead(ctx, out); err != nil {
 				slog.Warn("connection failed", "exchange", c.name, "error", err)
 				select {
 				case <-ctx.Done():
@@ -56,7 +54,7 @@ func (c *LiveClient) Start(ctx context.Context) error {
 	}
 }
 
-func (c *LiveClient) connectAndRead(ctx context.Context) error {
+func (c *LiveClient) connectAndRead(ctx context.Context, out chan<- models.Prices) error {
 	conn, err := net.DialTimeout("tcp", c.addr, 5*time.Second)
 	if err != nil {
 		return err
@@ -104,7 +102,7 @@ func (c *LiveClient) connectAndRead(ctx context.Context) error {
 			}
 
 			select {
-			case c.out <- price:
+			case out <- price:
 				slog.Debug("sent price", "exchange", c.name, "symbol", data.Symbol, "price", data.Price)
 			case <-ctx.Done():
 				return ctx.Err()
