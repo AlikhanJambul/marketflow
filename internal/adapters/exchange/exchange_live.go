@@ -7,11 +7,12 @@ import (
 	"errors"
 	"log/slog"
 	"marketflow/internal/domain/models"
+	"marketflow/internal/domain/ports"
 	"net"
 	"time"
 )
 
-type BirgeClient struct {
+type LiveClient struct {
 	name   string
 	addr   string
 	out    chan<- models.Prices
@@ -19,8 +20,8 @@ type BirgeClient struct {
 	stopCh chan struct{}
 }
 
-func NewBirgeClient(name, addr string, out chan<- models.Prices) *BirgeClient {
-	return &BirgeClient{
+func NewBirgeClient(name, addr string, out chan<- models.Prices) ports.Client {
+	return &LiveClient{
 		name:   name,
 		addr:   addr,
 		out:    out,
@@ -28,25 +29,25 @@ func NewBirgeClient(name, addr string, out chan<- models.Prices) *BirgeClient {
 	}
 }
 
-func (c *BirgeClient) Start(ctx context.Context) {
+func (c *LiveClient) Start(ctx context.Context) error {
 	slog.Info("starting birge client", "exchange", c.name, "addr", c.addr)
 
 	for {
 		select {
 		case <-ctx.Done():
 			slog.Info("birge client stopped by context", "exchange", c.name)
-			return
+			return nil
 		case <-c.stopCh:
 			slog.Info("birge client stopped manually", "exchange", c.name)
-			return
+			return nil
 		default:
 			if err := c.connectAndRead(ctx); err != nil {
 				slog.Warn("connection failed", "exchange", c.name, "error", err)
 				select {
 				case <-ctx.Done():
-					return
+					return nil
 				case <-c.stopCh:
-					return
+					return nil
 				case <-time.After(5 * time.Second):
 					slog.Info("reconnecting...", "exchange", c.name)
 				}
@@ -55,7 +56,7 @@ func (c *BirgeClient) Start(ctx context.Context) {
 	}
 }
 
-func (c *BirgeClient) connectAndRead(ctx context.Context) error {
+func (c *LiveClient) connectAndRead(ctx context.Context) error {
 	conn, err := net.DialTimeout("tcp", c.addr, 5*time.Second)
 	if err != nil {
 		return err
@@ -114,7 +115,7 @@ func (c *BirgeClient) connectAndRead(ctx context.Context) error {
 	}
 }
 
-func (c *BirgeClient) Stop() {
+func (c *LiveClient) Stop() {
 	select {
 	case <-c.stopCh:
 	default:

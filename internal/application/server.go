@@ -3,15 +3,12 @@ package application
 import (
 	"context"
 	"log/slog"
-	"marketflow/internal/adapters/exchange"
 	"marketflow/internal/application/aggregator"
 	"marketflow/internal/application/worker"
 	"marketflow/internal/bootstrap"
-	"marketflow/internal/domain/models"
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -21,31 +18,15 @@ func RunServer() {
 	repo := bootstrap.Repo
 	cache := bootstrap.Cache
 	mux := bootstrap.Mux
-
-	var sourceArr []models.Sourse
-	for _, addr := range cfg.Exchanges {
-		ch := make(chan models.Prices, 15)
-		sourceArr = append(sourceArr, models.Sourse{
-			SourseChan: ch,
-			Addr:       addr,
-		})
-	}
+	manager := bootstrap.Manager
 
 	ctx, close := context.WithCancel(context.Background())
 	defer close()
 
-	chans := []<-chan models.Prices{}
-
-	for _, source := range sourceArr {
-		chans = append(chans, source.SourseChan)
-	}
-
-	for _, s := range sourceArr {
-		parts := strings.Split(s.Addr, ":")
-		exchangeCount := parts[0]
-
-		client := exchange.NewBirgeClient(exchangeCount, s.Addr, s.SourseChan)
-		go client.Start(ctx)
+	chans, err := manager.Start(ctx, "live")
+	if err != nil {
+		slog.Error(err.Error())
+		return
 	}
 
 	resultChan := worker.FanIn(chans...)

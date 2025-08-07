@@ -124,5 +124,5 @@ func (a *Aggregator) Aggregate(ctx context.Context, buffer map[string][]float64)
 
 }
 
-func (a *Aggregator) Stop() {
-}
+//func (a *Aggregator) Stop() {
+//}

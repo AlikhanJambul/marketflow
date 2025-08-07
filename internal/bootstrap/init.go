@@ -5,6 +5,7 @@ import (
 	"marketflow/internal/adapters/handlers"
 	"marketflow/internal/adapters/postgres"
 	"marketflow/internal/adapters/redis"
+	"marketflow/internal/application/mode"
 	"marketflow/internal/application/usecase"
 	"marketflow/internal/core/config"
 	"marketflow/internal/core/utils"
@@ -22,6 +23,7 @@ var (
 	Valid    *utils.Validation
 	Services ports.ServiceMethods
 	Handlers *handlers.Handler
+	Manager  *mode.Manager
 )
 
 func init() {
@@ -38,8 +40,9 @@ func init() {
 	Cache = redis.NewRedisCache(rdb)
 	Valid = utils.NewValidation()
 
+	Manager = mode.NewManager(Cfg, "test")
 	Services = usecase.InitService(Repo, Cache, Valid)
-	Handlers = handlers.InitHandlers(Services)
+	Handlers = handlers.InitHandlers(Services, Manager)
 	Mux = handlers.InitNewServer(Handlers)
 
 	slog.Info("Инициализация завершена успешно")

@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"context"
+	"log/slog"
+	"marketflow/internal/application/mode"
+	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/ports"
 	"net/http"
 )
@@ -22,8 +26,8 @@ func InitNewServer(h *Handler) *http.ServeMux {
 	mux.HandleFunc("GET /prices/average/{exchange}/{symbol}", h.GetAvgSymExc)
 
 	// Data Mode API
-	mux.HandleFunc("POST /mode/test", func(w http.ResponseWriter, r *http.Request) {})
-	mux.HandleFunc("POST /mode/live", func(w http.ResponseWriter, r *http.Request) {})
+	mux.HandleFunc("POST /mode/test", h.SetMode)
+	mux.HandleFunc("POST /mode/live", h.SetMode)
 
 	// System Health
 	mux.HandleFunc("GET /health", h.CheckHealth)
@@ -33,10 +37,24 @@ func InitNewServer(h *Handler) *http.ServeMux {
 
 type Handler struct {
 	Service ports.ServiceMethods
+	Manager *mode.Manager
 }
 
-func InitHandlers(service ports.ServiceMethods) *Handler {
+func InitHandlers(service ports.ServiceMethods, manager *mode.Manager) *Handler {
 	return &Handler{
 		Service: service,
+		Manager: manager,
 	}
+}
+
+func (h *Handler) SetMode(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	if _, err := h.Manager.Start(ctx, mode.Test); err != nil {
+		slog.Error(err.Error())
+		utils.ErrResponseInJson(w, err)
+		return
+	}
+
+	utils.ResponseInJson(w, 200, "ok!")
 }
