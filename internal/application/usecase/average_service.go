@@ -2,24 +2,31 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"marketflow/internal/core/apperrors"
+	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 )
 
-func (s *Service) GetAvgSymService(symbol string) (models.PriceStats, error) {
+func (s *Service) GetAvgSymService(symbol, duration string) (models.PriceStats, error) {
 	if ok := s.Valid.CheckSymbol(symbol); !ok {
 		return models.PriceStats{}, apperrors.ErrInvalidSymbol
 	}
 
-	key := fmt.Sprintf("avg/%s", symbol)
+	validDuration, ok := utils.CheckDuration(duration)
+	if !ok {
+		return models.PriceStats{}, errors.New("invalid duration")
+	}
+
+	key := fmt.Sprintf("avg/%s/%s", symbol, validDuration.String())
 
 	result, err := s.Cache.Get(key)
 	if err != nil {
 		slog.Error(err.Error())
 
-		resultRepo, err := s.Repo.GetAvgSym(context.Background(), symbol)
+		resultRepo, err := s.Repo.GetAvgSym(context.Background(), symbol, validDuration)
 		if err != nil {
 			return models.PriceStats{}, err
 		}
@@ -35,16 +42,21 @@ func (s *Service) GetAvgSymService(symbol string) (models.PriceStats, error) {
 	return result, nil
 }
 
-func (s *Service) GetAvgSymExcService(symbol, exchange string) (models.PriceStats, error) {
+func (s *Service) GetAvgSymExcService(symbol, exchange, duration string) (models.PriceStats, error) {
 	if ok := s.Valid.CheckAll(symbol, exchange); !ok {
 		return models.PriceStats{}, apperrors.ErrInavalidBody
 	}
 
-	key := fmt.Sprintf("avg/%s/%s", exchange, symbol)
+	validDuration, ok := utils.CheckDuration(duration)
+	if !ok {
+		return models.PriceStats{}, errors.New("invalid duration")
+	}
+
+	key := fmt.Sprintf("avg/%s/%s/%s", exchange, symbol, validDuration.String())
 
 	result, err := s.Cache.Get(key)
 	if err != nil {
-		res, err := s.Repo.GetAvgSymExc(context.Background(), symbol, exchange)
+		res, err := s.Repo.GetAvgSymExc(context.Background(), symbol, exchange, validDuration)
 		if err != nil {
 			return models.PriceStats{}, err
 		}

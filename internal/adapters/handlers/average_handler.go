@@ -12,8 +12,13 @@ func (h *Handler) GetAvgSym(w http.ResponseWriter, r *http.Request) {
 	}
 
 	symbol := r.PathValue("symbol")
+	duration := r.URL.Query().Get("period")
 
-	res, err := h.Service.GetAvgSymService(symbol)
+	if duration == "" {
+		duration = "1m"
+	}
+
+	res, err := h.Service.GetAvgSymService(symbol, duration)
 	if err != nil {
 		utils.ErrResponseInJson(w, err)
 		return
@@ -30,8 +35,13 @@ func (h *Handler) GetAvgSymExc(w http.ResponseWriter, r *http.Request) {
 
 	symbol := r.PathValue("symbol")
 	exchange := r.PathValue("exchange")
+	duration := r.URL.Query().Get("period")
 
-	res, err := h.Service.GetAvgSymExcService(symbol, exchange)
+	if duration == "" {
+		duration = "1m"
+	}
+
+	res, err := h.Service.GetAvgSymExcService(symbol, exchange, duration)
 	if err != nil {
 		utils.ErrResponseInJson(w, err)
 		return

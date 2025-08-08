@@ -26,7 +26,7 @@ func NewAggregator(repo ports.PostgresDB, cache ports.Cache, out <-chan models.P
 
 func (a *Aggregator) Start(ctx context.Context) {
 	buffer := make(map[string][]float64)
-	ticker := time.NewTicker(time.Minute)
+	ticker := time.NewTicker(30 * time.Second)
 
 	for {
 		select {

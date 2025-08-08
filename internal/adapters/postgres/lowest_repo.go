@@ -3,9 +3,10 @@ package postgres
 import (
 	"context"
 	"marketflow/internal/domain/models"
+	"time"
 )
 
-func (r *Repository) GetLowestSym(ctx context.Context, symbol string) (models.PriceStats, error) {
+func (r *Repository) GetLowestSym(ctx context.Context, symbol string, duration time.Duration) (models.PriceStats, error) {
 	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
@@ -23,7 +24,7 @@ func (r *Repository) GetLowestSym(ctx context.Context, symbol string) (models.Pr
 	return result, nil
 }
 
-func (r *Repository) GetLowestSymExc(ctx context.Context, symbol string, exchange string) (models.PriceStats, error) {
+func (r *Repository) GetLowestSymExc(ctx context.Context, symbol string, exchange string, duration time.Duration) (models.PriceStats, error) {
 	var result models.PriceStats
 
 	err := r.db.QueryRowContext(ctx, `
