@@ -1,33 +1,12 @@
 package handlers
 
 import (
+	"log/slog"
 	"marketflow/internal/core/utils"
 	"net/http"
 )
 
-func (h *Handler) GetLowestSym(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	symbol := r.PathValue("symbol")
-	duration := r.URL.Query().Get("period")
-
-	if duration == "" {
-		duration = "1m"
-	}
-
-	res, err := h.Service.GetLowestSymService(symbol, duration)
-	if err != nil {
-		utils.ErrResponseInJson(w, err)
-		return
-	}
-
-	utils.ResponseInJson(w, 200, res)
-}
-
-func (h *Handler) GetLowestSymExc(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetLowest(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -41,11 +20,17 @@ func (h *Handler) GetLowestSymExc(w http.ResponseWriter, r *http.Request) {
 		duration = "1m"
 	}
 
-	res, err := h.Service.GetLowestSymExcService(symbol, exchange, duration)
+	res, err := h.Service.GetStatService(symbol, exchange, "min", duration)
 	if err != nil {
+		slog.Error(err.Error())
 		utils.ErrResponseInJson(w, err)
 		return
 	}
 
-	utils.ResponseInJson(w, 200, res)
+	utils.ResponseInJson(w, 200, map[string]interface{}{
+		"pair_name":    res.Pair,
+		"exchange":     res.Exchange,
+		"lowest_price": res.Min,
+		"timestamp":    res.Timestamp,
+	})
 }

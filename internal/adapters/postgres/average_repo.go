@@ -2,44 +2,42 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 	"marketflow/internal/domain/models"
 	"time"
 )
 
-func (r *Repository) GetAvgSym(ctx context.Context, symbol string, duration time.Duration) (models.PriceStats, error) {
-	var result models.PriceStats
-
-	err := r.db.QueryRowContext(ctx, `
-		SELECT  pair_name, average_price, exchange, timestamp
+func (r *Repository) GetAverage(ctx context.Context, symbol, exchange string, duration time.Duration) ([]models.PriceStats, error) {
+	query := fmt.Sprintf(`
+		SELECT pair_name, exchange, average_price, timestamp
 		FROM birge_prices
 		WHERE pair_name = $1
-		AND timestamp >= NOW() - $2::interval
-		ORDER BY timestamp DESC
-		LIMIT 1;
-	`, symbol, duration).Scan(&result.Pair, &result.Average, &result.Exchange, &result.Timestamp)
+		  AND timestamp >= NOW() - $2::interval
+	`)
 
-	if err != nil {
-		return models.PriceStats{}, err
+	args := []interface{}{symbol, duration}
+
+	if exchange != "" {
+		query += " AND exchange = $3"
+		args = append(args, exchange)
 	}
 
-	return result, nil
-}
-
-func (r *Repository) GetAvgSymExc(ctx context.Context, symbol, exchange string, duration time.Duration) (models.PriceStats, error) {
-	var result models.PriceStats
-
-	err := r.db.QueryRowContext(ctx, `
-		SELECT  pair_name, average_price, exchange, timestamp
-		FROM birge_prices
-		WHERE pair_name = $1
-		AND exchange = $2
-		AND timestamp >= NOW() - $3::interval
-		ORDER BY timestamp DESC
-		LIMIT 1;
-	`, symbol, exchange, duration).Scan(&result.Pair, &result.Average, &result.Exchange, &result.Timestamp)
-
+	var result []models.PriceStats
+	rows, err := r.db.QueryContext(ctx, query, args...)
 	if err != nil {
-		return models.PriceStats{}, err
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var row models.PriceStats
+
+		if err := rows.Scan(&row.Pair, &row.Exchange, &row.Average, &row.Timestamp); err != nil {
+			return nil, err
+		}
+
+		result = append(result, row)
 	}
 
 	return result, nil

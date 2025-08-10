@@ -8,6 +8,7 @@ import (
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
 	"strings"
+	"time"
 )
 
 type Repository struct {
@@ -16,23 +17,6 @@ type Repository struct {
 
 func NewRepository(db *sql.DB) ports.PostgresDB {
 	return &Repository{db: db}
-}
-
-func (r *Repository) BatchInsert(ctx context.Context, prices []models.Prices) error {
-	query := "INSERT INTO birge_prices (symbol, price, timestamp, exchange) VALUES "
-	args := []interface{}{}
-	values := []string{}
-
-	for i, p := range prices {
-		pos := i * 4
-		values = append(values, fmt.Sprintf("($%d, $%d, $%d, $%d)", pos+1, pos+2, pos+3, pos+4))
-		args = append(args, p.Symbol, p.Price, p.Timestamp, p.Exchange)
-	}
-
-	query += strings.Join(values, ",")
-	_, err := r.db.ExecContext(ctx, query, args...)
-	slog.Info("Работает!!!!!")
-	return err
 }
 
 func (r *Repository) NewBatchInsert(ctx context.Context, prices []models.PriceStats) error {
@@ -58,4 +42,36 @@ func (r *Repository) NewBatchInsert(ctx context.Context, prices []models.PriceSt
 
 func (r *Repository) CheckConn() error {
 	return r.db.Ping()
+}
+
+func (r *Repository) GetLowHighStat(ctx context.Context, symbol, exchange, price string, duration time.Duration) (models.PriceStats, error) {
+	orderBy := "min_price ASC"
+	if price == "max" {
+		orderBy = "max_price DESC"
+	}
+
+	query := fmt.Sprintf(`
+		SELECT pair_name, exchange, max_price, min_price, timestamp 
+		FROM birge_prices
+		WHERE pair_name = $1
+		  AND timestamp >= NOW() - $2::interval
+	`)
+
+	args := []interface{}{symbol, duration}
+
+	if exchange != "" {
+		query += " AND exchange = $3"
+		args = append(args, exchange)
+	}
+
+	query += fmt.Sprintf(" ORDER BY %s LIMIT 1", orderBy)
+
+	var result models.PriceStats
+	err := r.db.QueryRowContext(ctx, query, args...).
+		Scan(&result.Pair, &result.Exchange, &result.Max, &result.Min, &result.Timestamp)
+	if err != nil {
+		return models.PriceStats{}, err
+	}
+
+	return result, nil
 }

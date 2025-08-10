@@ -5,29 +5,7 @@ import (
 	"net/http"
 )
 
-func (h *Handler) GetAvgSym(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	symbol := r.PathValue("symbol")
-	duration := r.URL.Query().Get("period")
-
-	if duration == "" {
-		duration = "1m"
-	}
-
-	res, err := h.Service.GetAvgSymService(symbol, duration)
-	if err != nil {
-		utils.ErrResponseInJson(w, err)
-		return
-	}
-
-	utils.ResponseInJson(w, 200, res)
-}
-
-func (h *Handler) GetAvgSymExc(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetAverage(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -41,11 +19,21 @@ func (h *Handler) GetAvgSymExc(w http.ResponseWriter, r *http.Request) {
 		duration = "1m"
 	}
 
-	res, err := h.Service.GetAvgSymExcService(symbol, exchange, duration)
+	res, err := h.Service.GetAvgService(symbol, exchange, duration)
 	if err != nil {
 		utils.ErrResponseInJson(w, err)
 		return
 	}
 
-	utils.ResponseInJson(w, 200, res)
+	var sum float64
+
+	for _, stat := range res {
+		sum += stat.Average
+	}
+
+	utils.ResponseInJson(w, 200, map[string]interface{}{
+		"pair_name":     symbol,
+		"exchange":      exchange,
+		"average_price": sum / float64(len(res)),
+	})
 }

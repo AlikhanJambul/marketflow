@@ -14,17 +14,17 @@ func InitNewServer(h *Handler, out chan<- models.Prices) *http.ServeMux {
 	mux := http.NewServeMux()
 
 	// Market Data API
-	mux.HandleFunc("/prices/latest/{symbol}", h.GetLatestSym)
-	mux.HandleFunc("GET /prices/latest/{exchange}/{symbol}", h.GetLatestSymExc)
+	mux.HandleFunc("/prices/latest/{symbol}", h.GetLatest)
+	mux.HandleFunc("GET /prices/latest/{exchange}/{symbol}", h.GetLatest)
 
-	mux.HandleFunc("GET /prices/highest/{symbol}", h.GetHighestSym)
-	mux.HandleFunc("GET /prices/highest/{exchange}/{symbol}", h.GetHighestSymExc)
+	mux.HandleFunc("GET /prices/highest/{symbol}", h.GetHighest)
+	mux.HandleFunc("GET /prices/highest/{exchange}/{symbol}", h.GetHighest)
 
-	mux.HandleFunc("GET /prices/lowest/{symbol}", h.GetLowestSym)
-	mux.HandleFunc("GET /prices/lowest/{exchange}/{symbol}", h.GetLowestSymExc)
+	mux.HandleFunc("GET /prices/lowest/{symbol}", h.GetLowest)
+	mux.HandleFunc("GET /prices/lowest/{exchange}/{symbol}", h.GetLowest)
 
-	mux.HandleFunc("GET /prices/average/{symbol}", h.GetAvgSym)
-	mux.HandleFunc("GET /prices/average/{exchange}/{symbol}", h.GetAvgSymExc)
+	mux.HandleFunc("GET /prices/average/{symbol}", h.GetAverage)
+	mux.HandleFunc("GET /prices/average/{exchange}/{symbol}", h.GetAverage)
 
 	// Data Mode API
 	mux.HandleFunc("POST /mode/test", h.SetModeTest(out))

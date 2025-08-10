@@ -13,6 +13,7 @@ func NewValidation() *Validation {
 			"exchange1": {},
 			"exchange2": {},
 			"exchange3": {},
+			"":          {},
 		},
 		Symbols: map[string]struct{}{
 			"BTCUSDT":  {},

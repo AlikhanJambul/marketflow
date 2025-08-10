@@ -17,7 +17,7 @@ func NewRedisCache(rdb *redis.Client) ports.Cache {
 	return &RedisCache{rbd: rdb}
 }
 
-func (r *RedisCache) Set(key string, value models.PriceStats) error {
+func (r *RedisCache) Set(firstKey, secondKey string, value models.PriceStats) error {
 	ctx := context.Background()
 
 	jsonValue, err := json.Marshal(value)
@@ -25,7 +25,12 @@ func (r *RedisCache) Set(key string, value models.PriceStats) error {
 		return err
 	}
 
-	return r.rbd.Set(ctx, key, string(jsonValue), 60*time.Second).Err()
+	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 30*time.Second).Err()
+	if err != nil {
+		return err
+	}
+
+	return r.rbd.Set(ctx, secondKey, string(jsonValue), 30*time.Second).Err()
 }
 
 func (r *RedisCache) Get(s string) (models.PriceStats, error) {
@@ -53,12 +58,12 @@ func (r *RedisCache) SetLatest(firstKey, secondKey string, latest models.LatestP
 		return err
 	}
 
-	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 60*time.Second).Err()
+	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 30*time.Second).Err()
 	if err != nil {
 		return err
 	}
 
-	return r.rbd.Set(ctx, secondKey, string(jsonValue), 60*time.Second).Err()
+	return r.rbd.Set(ctx, secondKey, string(jsonValue), 30*time.Second).Err()
 }
 
 func (r *RedisCache) GetLatest(key string) (models.LatestPrice, error) {

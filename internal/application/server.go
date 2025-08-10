@@ -19,7 +19,6 @@ func RunServer() {
 	cfg := bootstrap.Cfg
 	repo := bootstrap.Repo
 	cache := bootstrap.Cache
-	//mux := bootstrap.Mux
 	manager := bootstrap.Manager
 	handler := bootstrap.Handlers
 
