@@ -18,7 +18,7 @@ func Load() *models.Config {
 
 	return &models.Config{
 		DB: models.DB{
-			Host:     getEnv("POSTGRES_HOST", "localhost"),
+			Host:     getEnv("POSTGRES_HOST", "pg_marketflow"),
 			Port:     getEnv("POSTGRES_PORT", "5432"),
 			User:     getEnv("POSTGRES_USER", "postgres"),
 			Password: getEnv("POSTGRES_PASSWORD", "postgres"),
@@ -26,8 +26,8 @@ func Load() *models.Config {
 			SSLMode:  getEnv("POSTGRES_SSLMODE", "disable"),
 		},
 		Redis: models.Redis{
-			Host:     getEnv("REDIS_HOST", "localhost"),
-			Port:     getEnv("REDIS_PORT", "4444"),
+			Host:     getEnv("REDIS_HOST", "redis"),
+			Port:     getEnv("REDIS_PORT", "6379"),
 			Password: getEnv("REDIS_PASSWORD", ""),
 			DB:       getEnvInt("REDIS_DB", 0),
 		},

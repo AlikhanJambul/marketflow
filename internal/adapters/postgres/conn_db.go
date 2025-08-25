@@ -3,10 +3,11 @@ package postgres
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log/slog"
 	"marketflow/internal/domain/models"
 	"time"
+
+	_ "github.com/lib/pq"
 )
 
 func ConnDb(config models.DB) (*sql.DB, error) {
@@ -20,11 +21,19 @@ func ConnDb(config models.DB) (*sql.DB, error) {
 
 	for i := 0; i < 10; i++ {
 		db, err = sql.Open("postgres", postgresConnStr)
-		if err == nil && db.Ping() == nil {
+		if err != nil {
+			slog.Error("Ошибка sql.Open", "err", err)
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		if pingErr := db.Ping(); pingErr == nil {
 			slog.Info("Успешное подключение к PostgreSQL!")
 			return db, nil
+		} else {
+			slog.Error("Ошибка db.Ping", "err", pingErr)
 		}
-		slog.Error(err.Error())
+
 		time.Sleep(2 * time.Second)
 	}
 

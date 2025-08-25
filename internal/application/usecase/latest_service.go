@@ -3,9 +3,10 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
 	"marketflow/internal/core/apperrors"
 	"marketflow/internal/domain/models"
+
+	"github.com/redis/go-redis/v9"
 )
 
 func (s *Service) GetLatestService(symbol, exchange string) (models.LatestPrice, error) {
@@ -25,7 +26,7 @@ func (s *Service) GetLatestService(symbol, exchange string) (models.LatestPrice,
 
 	err := s.Cache.Check(ctx)
 	if err != nil {
-		return models.LatestPrice{}, err
+		return models.LatestPrice{}, apperrors.ErrRedis
 	}
 
 	res, err := s.Cache.GetLatest(key)

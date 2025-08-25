@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"log/slog"
 	"marketflow/internal/core/utils"
 	"net/http"
 )
@@ -19,6 +20,7 @@ func (h *Handler) GetLatest(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.Service.GetLatestService(symbol, exchange)
 	if err != nil {
+		slog.Error(err.Error())
 		utils.ErrResponseInJson(w, err)
 		return
 	}

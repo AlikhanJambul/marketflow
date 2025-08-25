@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"marketflow/internal/core/utils"
 	"net/http"
 )
@@ -21,6 +22,7 @@ func (h *Handler) GetAverage(w http.ResponseWriter, r *http.Request) {
 
 	res, err := h.Service.GetAvgService(symbol, exchange, duration)
 	if err != nil {
+		slog.Error(err.Error())
 		utils.ErrResponseInJson(w, err)
 		return
 	}

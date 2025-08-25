@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"marketflow/internal/core/apperrors"
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
@@ -15,7 +14,11 @@ func (s *Service) GetStatService(symbol, exchange, price, duration string) (mode
 
 	validDuration, ok := utils.CheckDuration(duration)
 	if !ok {
-		return models.PriceStats{}, errors.New("invalid duration")
+		return models.PriceStats{}, apperrors.ErrDuration
+	}
+
+	if err := s.Repo.CheckConn(); err != nil {
+		return models.PriceStats{}, apperrors.ErrDB
 	}
 
 	result, err := s.Repo.GetLowHighStat(context.Background(), symbol, exchange, price, validDuration)
