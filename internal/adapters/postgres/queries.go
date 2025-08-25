@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
+
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
-	"strings"
-	"time"
 )
 
 type Repository struct {
@@ -44,7 +44,7 @@ func (r *Repository) CheckConn() error {
 	return r.db.Ping()
 }
 
-func (r *Repository) GetLowHighStat(ctx context.Context, symbol, exchange, price string, duration time.Duration) (models.PriceStats, error) {
+func (r *Repository) GetLowHighStat(ctx context.Context, symbol, exchange, price string, duration string) (models.PriceStats, error) {
 	orderBy := "min_price ASC"
 	if price == "max" {
 		orderBy = "max_price DESC"

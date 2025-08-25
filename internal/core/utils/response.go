@@ -3,8 +3,9 @@ package utils
 import (
 	"encoding/json"
 	"log/slog"
-	"marketflow/internal/core/apperrors"
 	"net/http"
+
+	"marketflow/internal/core/apperrors"
 )
 
 func ResponseInJson(w http.ResponseWriter, statusCode int, object interface{}) {

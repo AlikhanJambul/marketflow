@@ -3,10 +3,11 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
-	"time"
 )
 
 type RedisCache struct {
@@ -72,7 +73,6 @@ func (r *RedisCache) GetLatest(key string) (models.LatestPrice, error) {
 	value, err := r.rbd.Get(ctx, key).Result()
 	if err != nil {
 		return models.LatestPrice{}, err
-
 	}
 
 	var result models.LatestPrice

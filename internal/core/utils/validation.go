@@ -1,7 +1,5 @@
 package utils
 
-import "time"
-
 type Validation struct {
 	Exchanges map[string]struct{}
 	Symbols   map[string]struct{}
@@ -59,16 +57,16 @@ func LastPrice(prices []float64) float64 {
 	return prices[len(prices)-1]
 }
 
-func CheckDuration(input string) (time.Duration, bool) {
-	durations := map[string]time.Duration{
-		"1s":  time.Second,
-		"3s":  3 * time.Second,
-		"5s":  5 * time.Second,
-		"10s": 10 * time.Second,
-		"30s": 30 * time.Second,
-		"1m":  time.Minute,
-		"3m":  3 * time.Minute,
-		"5m":  5 * time.Minute,
+func CheckDuration(input string) (string, bool) {
+	durations := map[string]string{
+		"1s":  "1 second",
+		"3s":  "3 seconds",
+		"5s":  "5 seconds",
+		"10s": "10 seconds",
+		"30s": "30 seconds",
+		"1m":  "1 minute",
+		"3m":  "3 minutes",
+		"5m":  "5 minutes",
 	}
 
 	d, ok := durations[input]

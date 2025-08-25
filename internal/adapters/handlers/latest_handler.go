@@ -3,8 +3,9 @@ package handlers
 import (
 	"fmt"
 	"log/slog"
-	"marketflow/internal/core/utils"
 	"net/http"
+
+	"marketflow/internal/core/utils"
 )
 
 func (h *Handler) GetLatest(w http.ResponseWriter, r *http.Request) {

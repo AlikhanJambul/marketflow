@@ -3,11 +3,12 @@ package handlers
 import (
 	"context"
 	"log/slog"
+	"net/http"
+
 	"marketflow/internal/application/mode"
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
-	"net/http"
 )
 
 func InitNewServer(h *Handler, out chan<- models.Prices) *http.ServeMux {
@@ -60,7 +61,6 @@ func (h *Handler) SetModeTest(input chan<- models.Prices) http.HandlerFunc {
 
 		utils.ResponseInJson(w, 200, "ok!")
 	}
-
 }
 
 func (h *Handler) SetModeLive(input chan<- models.Prices) http.HandlerFunc {
@@ -75,5 +75,4 @@ func (h *Handler) SetModeLive(input chan<- models.Prices) http.HandlerFunc {
 
 		utils.ResponseInJson(w, 200, "ok!")
 	}
-
 }

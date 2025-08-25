@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"log/slog"
-	"marketflow/internal/core/utils"
 	"net/http"
+
+	"marketflow/internal/core/utils"
 )
 
 func (h *Handler) GetAverage(w http.ResponseWriter, r *http.Request) {

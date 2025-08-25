@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"marketflow/internal/domain/models"
-	"marketflow/internal/domain/ports"
 	"strings"
 	"time"
+
+	"marketflow/internal/domain/models"
+	"marketflow/internal/domain/ports"
 )
 
 type Aggregator struct {
@@ -49,7 +50,6 @@ func (a *Aggregator) Start(ctx context.Context) {
 			}
 		}
 	}
-
 }
 
 func (a *Aggregator) Aggregate(ctx context.Context, buffer map[string][]float64) {
@@ -119,7 +119,5 @@ func (a *Aggregator) Aggregate(ctx context.Context, buffer map[string][]float64)
 		} else {
 			slog.Info("aggregator success")
 		}
-
 	}
-
 }

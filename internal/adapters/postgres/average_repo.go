@@ -3,11 +3,11 @@ package postgres
 import (
 	"context"
 	"fmt"
+
 	"marketflow/internal/domain/models"
-	"time"
 )
 
-func (r *Repository) GetAverage(ctx context.Context, symbol, exchange string, duration time.Duration) ([]models.PriceStats, error) {
+func (r *Repository) GetAverage(ctx context.Context, symbol, exchange string, duration string) ([]models.PriceStats, error) {
 	query := fmt.Sprintf(`
 		SELECT pair_name, exchange, average_price, timestamp
 		FROM birge_prices

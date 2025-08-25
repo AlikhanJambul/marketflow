@@ -2,6 +2,8 @@ package bootstrap
 
 import (
 	"log/slog"
+	"os"
+
 	"marketflow/internal/adapters/handlers"
 	"marketflow/internal/adapters/postgres"
 	"marketflow/internal/adapters/redis"
@@ -11,14 +13,13 @@ import (
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
-	"os"
 )
 
 var (
 	Cfg   *models.Config
 	Repo  ports.PostgresDB
 	Cache ports.Cache
-	//Mux      *http.ServeMux
+	// Mux      *http.ServeMux
 	Valid    *utils.Validation
 	Services ports.ServiceMethods
 	Handlers *handlers.Handler

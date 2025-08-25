@@ -3,10 +3,11 @@ package exchange
 import (
 	"context"
 	"log/slog"
-	"marketflow/internal/domain/models"
-	"marketflow/internal/domain/ports"
 	"math/rand"
 	"time"
+
+	"marketflow/internal/domain/models"
+	"marketflow/internal/domain/ports"
 )
 
 type TestClient struct {
@@ -42,7 +43,6 @@ func (c *TestClient) Start(ctx context.Context, out chan<- models.Prices) error 
 			return nil
 		}
 	}
-
 }
 
 func (c *TestClient) Stop() {
