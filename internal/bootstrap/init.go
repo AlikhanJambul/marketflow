@@ -2,8 +2,6 @@ package bootstrap
 
 import (
 	"log/slog"
-	"os"
-
 	"marketflow/internal/adapters/handlers"
 	"marketflow/internal/adapters/postgres"
 	"marketflow/internal/adapters/redis"
@@ -13,6 +11,7 @@ import (
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"os"
 )
 
 var (

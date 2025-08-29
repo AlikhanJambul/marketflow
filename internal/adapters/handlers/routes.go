@@ -3,12 +3,11 @@ package handlers
 import (
 	"context"
 	"log/slog"
-	"net/http"
-
 	"marketflow/internal/application/mode"
 	"marketflow/internal/core/utils"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"net/http"
 )
 
 func InitNewServer(h *Handler, out chan<- models.Prices) *http.ServeMux {

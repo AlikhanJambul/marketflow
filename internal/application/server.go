@@ -3,17 +3,16 @@ package application
 import (
 	"context"
 	"log/slog"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
-
 	"marketflow/internal/adapters/handlers"
 	"marketflow/internal/application/aggregator"
 	"marketflow/internal/application/worker"
 	"marketflow/internal/bootstrap"
 	"marketflow/internal/domain/models"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 )
 
 func RunServer() {

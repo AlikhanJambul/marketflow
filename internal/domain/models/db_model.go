@@ -8,6 +8,7 @@ type DB struct {
 	DBName   string
 	SSLMode  string
 }
+
 type Redis struct {
 	Host     string
 	Port     string

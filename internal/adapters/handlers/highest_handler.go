@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"log/slog"
-	"net/http"
-
 	"marketflow/internal/core/utils"
+	"net/http"
 )
 
 func (h *Handler) GetHighest(w http.ResponseWriter, r *http.Request) {

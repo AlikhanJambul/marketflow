@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"net/http"
-
 	"marketflow/internal/core/utils"
+	"net/http"
 )
 
 func (h *Handler) CheckHealth(w http.ResponseWriter, r *http.Request) {

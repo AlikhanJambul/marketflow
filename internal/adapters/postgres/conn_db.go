@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"time"
-
 	"marketflow/internal/domain/models"
+	"time"
 
 	_ "github.com/lib/pq"
 )

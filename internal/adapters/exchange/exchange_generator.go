@@ -3,11 +3,10 @@ package exchange
 import (
 	"context"
 	"log/slog"
-	"math/rand"
-	"time"
-
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"math/rand"
+	"time"
 )
 
 type TestClient struct {

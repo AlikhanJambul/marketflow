@@ -1,10 +1,9 @@
 package config
 
 import (
+	"marketflow/internal/domain/models"
 	"os"
 	"strconv"
-
-	"marketflow/internal/domain/models"
 )
 
 func Load() *models.Config {

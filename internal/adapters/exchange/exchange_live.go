@@ -6,11 +6,10 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
-	"net"
-	"time"
-
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"net"
+	"time"
 )
 
 type LiveClient struct {

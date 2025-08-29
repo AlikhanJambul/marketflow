@@ -5,12 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"strings"
-	"sync"
-
 	"marketflow/internal/adapters/exchange"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"strings"
+	"sync"
 )
 
 //type Mode string

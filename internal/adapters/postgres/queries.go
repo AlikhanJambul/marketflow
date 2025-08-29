@@ -5,10 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
-	"strings"
-
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"strings"
 )
 
 type Repository struct {

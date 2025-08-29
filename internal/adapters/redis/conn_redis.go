@@ -1,10 +1,10 @@
 package redis
 
 import (
+	"marketflow/internal/domain/models"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"marketflow/internal/domain/models"
 )
 
 func ConnRedis(redisData models.Redis) *redis.Client {

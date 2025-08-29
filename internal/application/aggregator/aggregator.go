@@ -4,11 +4,10 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strings"
-	"time"
-
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
+	"strings"
+	"time"
 )
 
 type Aggregator struct {
