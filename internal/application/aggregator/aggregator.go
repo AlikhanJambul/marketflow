@@ -11,16 +11,14 @@ import (
 )
 
 type Aggregator struct {
-	Repo  ports.PostgresDB
-	Cache ports.Cache
-	out   <-chan models.Prices
+	Repo ports.PostgresDB
+	out  <-chan models.Prices
 }
 
 func NewAggregator(repo ports.PostgresDB, cache ports.Cache, out <-chan models.Prices) *Aggregator {
 	return &Aggregator{
-		Repo:  repo,
-		Cache: cache,
-		out:   out,
+		Repo: repo,
+		out:  out,
 	}
 }
 
@@ -86,26 +84,6 @@ func (a *Aggregator) Aggregate(ctx context.Context, buffer map[string][]float64)
 			Average:   avg,
 			Max:       max,
 			Min:       min,
-		}
-
-		firstKey := fmt.Sprintf("latest/%s", sym)
-		secondKey := fmt.Sprintf("latest/%s/%s", exc, sym)
-
-		if len(prices) > 0 {
-			n := len(prices) - 1
-			latestValue := prices[n]
-
-			latestResult := models.LatestPrice{
-				Exchange:  exc,
-				Pair:      sym,
-				Timestamp: time.Now(),
-				Price:     latestValue,
-			}
-
-			err := a.Cache.SetLatest(firstKey, secondKey, latestResult)
-			if err != nil {
-				slog.Error(err.Error())
-			}
 		}
 
 		result = append(result, resultKey)

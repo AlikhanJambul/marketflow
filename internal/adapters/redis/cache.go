@@ -3,6 +3,7 @@ package redis
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"marketflow/internal/domain/models"
 	"marketflow/internal/domain/ports"
 	"time"
@@ -34,6 +35,25 @@ func (r *RedisCache) Set(firstKey, secondKey string, value models.PriceStats) er
 	return r.rbd.Set(ctx, secondKey, string(jsonValue), 30*time.Second).Err()
 }
 
+func (r *RedisCache) SetLatest(value models.Prices) error {
+	ctx := context.Background()
+
+	firstKey := fmt.Sprintf("latest/%s", value.Symbol)
+	secondKey := fmt.Sprintf("latest/%s/", value.Exchange, value.Symbol)
+
+	jsonValue, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+
+	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 10*time.Second).Err()
+	if err != nil {
+		return err
+	}
+
+	return r.rbd.Set(ctx, secondKey, string(jsonValue), 10*time.Second).Err()
+}
+
 func (r *RedisCache) Get(s string) (models.PriceStats, error) {
 	ctx := context.Background()
 
@@ -51,21 +71,21 @@ func (r *RedisCache) Get(s string) (models.PriceStats, error) {
 	return result, nil
 }
 
-func (r *RedisCache) SetLatest(firstKey, secondKey string, latest models.LatestPrice) error {
-	ctx := context.Background()
-
-	jsonValue, err := json.Marshal(latest)
-	if err != nil {
-		return err
-	}
-
-	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 30*time.Second).Err()
-	if err != nil {
-		return err
-	}
-
-	return r.rbd.Set(ctx, secondKey, string(jsonValue), 30*time.Second).Err()
-}
+//func (r *RedisCache) SetLatest(firstKey, secondKey string, latest models.LatestPrice) error {
+//	ctx := context.Background()
+//
+//	jsonValue, err := json.Marshal(latest)
+//	if err != nil {
+//		return err
+//	}
+//
+//	err = r.rbd.Set(ctx, firstKey, string(jsonValue), 30*time.Second).Err()
+//	if err != nil {
+//		return err
+//	}
+//
+//	return r.rbd.Set(ctx, secondKey, string(jsonValue), 30*time.Second).Err()
+//}
 
 func (r *RedisCache) GetLatest(key string) (models.LatestPrice, error) {
 	ctx := context.Background()
