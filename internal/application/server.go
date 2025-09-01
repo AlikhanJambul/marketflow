@@ -36,6 +36,7 @@ func RunServer() {
 		pool := worker.Worker{
 			InputCh:  input,
 			OutputCh: output,
+			Cache:    cache,
 		}
 		go pool.FanIn()
 	}

@@ -9,9 +9,9 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-func (s *Service) GetLatestService(symbol, exchange string) (models.LatestPrice, error) {
+func (s *Service) GetLatestService(symbol, exchange string) (models.Prices, error) {
 	if ok := s.Valid.CheckAll(symbol, exchange); !ok {
-		return models.LatestPrice{}, apperrors.ErrInavalidBody
+		return models.Prices{}, apperrors.ErrInavalidBody
 	}
 
 	var key string
@@ -26,16 +26,16 @@ func (s *Service) GetLatestService(symbol, exchange string) (models.LatestPrice,
 
 	err := s.Cache.Check(ctx)
 	if err != nil {
-		return models.LatestPrice{}, apperrors.ErrRedis
+		return models.Prices{}, apperrors.ErrRedis
 	}
 
 	res, err := s.Cache.GetLatest(key)
 	if err == redis.Nil {
-		return models.LatestPrice{}, apperrors.ErrRedisNil
+		return models.Prices{}, apperrors.ErrRedisNil
 	}
 
 	if err != nil {
-		return models.LatestPrice{}, err
+		return models.Prices{}, err
 	}
 
 	return res, nil

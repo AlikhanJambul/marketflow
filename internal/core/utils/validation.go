@@ -1,5 +1,12 @@
 package utils
 
+import (
+	"fmt"
+	"regexp"
+	"strconv"
+	"strings"
+)
+
 type Validation struct {
 	Exchanges map[string]struct{}
 	Symbols   map[string]struct{}
@@ -58,17 +65,39 @@ func LastPrice(prices []float64) float64 {
 }
 
 func CheckDuration(input string) (string, bool) {
-	durations := map[string]string{
-		"1s":  "1 second",
-		"3s":  "3 seconds",
-		"5s":  "5 seconds",
-		"10s": "10 seconds",
-		"30s": "30 seconds",
-		"1m":  "1 minute",
-		"3m":  "3 minutes",
-		"5m":  "5 minutes",
+	re := regexp.MustCompile(`(\d+)([hms])`)
+	matches := re.FindAllStringSubmatch(input, -1)
+
+	if len(matches) == 0 {
+		return "", false
 	}
 
-	d, ok := durations[input]
-	return d, ok
+	var parts []string
+	for _, match := range matches {
+		valueStr, unit := match[1], match[2]
+		value, _ := strconv.Atoi(valueStr)
+
+		switch unit {
+		case "h":
+			if value == 1 {
+				parts = append(parts, fmt.Sprintf("%d hour", value))
+			} else {
+				parts = append(parts, fmt.Sprintf("%d hours", value))
+			}
+		case "m":
+			if value == 1 {
+				parts = append(parts, fmt.Sprintf("%d minute", value))
+			} else {
+				parts = append(parts, fmt.Sprintf("%d minutes", value))
+			}
+		case "s":
+			if value == 1 {
+				parts = append(parts, fmt.Sprintf("%d second", value))
+			} else {
+				parts = append(parts, fmt.Sprintf("%d seconds", value))
+			}
+		}
+	}
+
+	return strings.Join(parts, " "), true
 }
