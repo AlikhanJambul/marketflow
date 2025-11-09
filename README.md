@@ -1,45 +1,53 @@
-# MarketFlow: Система обработки рыночных данных в реальном времени
+---
 
-## Описание
+# MarketFlow: Real-Time Market Data Processing System
 
-MarketFlow - это система для обработки рыночных данных в реальном времени, разработанная на Go. Система получает данные о ценах криптовалютных пар с нескольких бирж, обрабатывает их с использованием паттернов конкурентности, кэширует в Redis и сохраняет агрегированные данные в PostgreSQL.
+## Description
 
-## Особенности
+**MarketFlow** is a real-time market data processing system built with Go.
+It collects cryptocurrency pair prices from multiple exchanges, processes them using concurrency patterns, caches the results in Redis, and stores aggregated data in PostgreSQL.
 
-- **Два режима работы**: Live Mode (реальные данные с бирж) и Test Mode (синтетические данные)
-- **Конкурентная обработка**: Использование паттернов Fan-in, Fan-out и Worker Pool
-- **Кэширование**: Redis для быстрого доступа к последним ценам
-- **Хранение данных**: PostgreSQL для долговременного хранения агрегированных данных
-- **REST API**: Эндпоинты для получения информации о ценах и статистики
-- **Graceful shutdown**: Корректное завершение работы при получении сигналов
+## Features
 
-## Архитектура
+* **Two operation modes**:
 
-Проект следует гексагональной архитектуре:
+  * **Live Mode** — real data from exchanges
+  * **Test Mode** — synthetic data
+* **Concurrent processing** using Fan-in, Fan-out, and Worker Pool patterns
+* **Caching** with Redis for fast access to the latest prices
+* **Data storage** in PostgreSQL for long-term aggregated data
+* **REST API** providing endpoints for market data and statistics
+* **Graceful shutdown** — clean shutdown on termination signals
 
-- **Domain Layer**: Бизнес-логика и модели
-- **Application Layer**: Use cases и оркестрация компонентов
-- **Adapters Layer**: 
-  - Web Adapter (HTTP handlers)
-  - Storage Adapter (PostgreSQL)
-  - Cache Adapter (Redis)
-  - Exchange Adapter (источники данных)
+## Architecture
 
-## Запуск проекта
+The project follows **Hexagonal Architecture (Ports & Adapters)**:
 
-### Предварительные требования
+* **Domain Layer** — business logic and data models
+* **Application Layer** — use cases and component orchestration
+* **Adapters Layer**:
 
-- Docker и Docker Compose
-- Go 1.21+ (для локальной разработки)
+  * **Web Adapter** — HTTP handlers
+  * **Storage Adapter** — PostgreSQL
+  * **Cache Adapter** — Redis
+  * **Exchange Adapter** — data sources
 
-### Настройка окружения
+## Project Setup
 
-1. Скопируйте файл `.env.example` в `.env`:
+### Prerequisites
+
+* Docker and Docker Compose
+* Go 1.21+ (for local development)
+
+### Environment Configuration
+
+1. Copy the `.env.example` file to `.env`:
+
 ```bash
 cp .env.example .env
 ```
 
-2. Заполните переменные окружения в файле `.env`:
+2. Fill in the environment variables in `.env`:
 
 ```env
 SERVER_PORT=8080
@@ -61,35 +69,35 @@ EXCHANGE2=exchange2:40102
 EXCHANGE3=exchange3:40103
 ```
 
-### Загрузка образов бирж
+### Loading Exchange Images
 
-Запустите скрипт для загрузки образов бирж:
+Run the script to load exchange images:
 
 ```bash
 cd script
 ./load_images.sh
 ```
 
-### Запуск с Docker Compose
+### Running with Docker Compose
 
 ```bash
 docker-compose up -d
 ```
 
-Приложение будет доступно на порту, указанном в `SERVER_PORT` (по умолчанию 8080).
+The application will be available on the port specified in `SERVER_PORT` (default: **8080**).
 
-### Локальная разработка
+### Local Development
 
-Для локальной разработки:
+For local runs:
 
 ```bash
 go build -o marketflow .
 ./marketflow
 ```
 
-## Использование
+## Usage
 
-### Командная строка
+### Command Line
 
 ```bash
 ./marketflow --help
@@ -106,68 +114,69 @@ Options:
 
 #### Market Data API
 
-- `GET /prices/latest/{symbol}` - Последняя цена для символа
-- `GET /prices/latest/{exchange}/{symbol}` - Последняя цена для символа с конкретной биржи
-- `GET /prices/highest/{symbol}` - Наивысшая цена за период
-- `GET /prices/highest/{exchange}/{symbol}` - Наивысшая цена за период с конкретной биржи
-- `GET /prices/highest/{symbol}?period={duration}` - Наивысшая цена за указанный период
-- `GET /prices/lowest/{symbol}` - Наинизшая цена за период
-- `GET /prices/lowest/{exchange}/{symbol}` - Наинизшая цена за период с конкретной биржи
-- `GET /prices/lowest/{symbol}?period={duration}` - Наинизшая цена за указанный период
-- `GET /prices/average/{symbol}` - Средняя цена за период
-- `GET /prices/average/{exchange}/{symbol}` - Средняя цена за период с конкретной биржи
-- `GET /prices/average/{exchange}/{symbol}?period={duration}` - Средняя цена за указанный период с конкретной биржи
+* `GET /prices/latest/{symbol}` — Get the latest price for a symbol
+* `GET /prices/latest/{exchange}/{symbol}` — Get the latest price from a specific exchange
+* `GET /prices/highest/{symbol}` — Get the highest price over a period
+* `GET /prices/highest/{exchange}/{symbol}` — Get the highest price from a specific exchange
+* `GET /prices/highest/{symbol}?period={duration}` — Get the highest price for a given time period
+* `GET /prices/lowest/{symbol}` — Get the lowest price over a period
+* `GET /prices/lowest/{exchange}/{symbol}` — Get the lowest price from a specific exchange
+* `GET /prices/lowest/{symbol}?period={duration}` — Get the lowest price for a given time period
+* `GET /prices/average/{symbol}` — Get the average price over a period
+* `GET /prices/average/{exchange}/{symbol}` — Get the average price from a specific exchange
+* `GET /prices/average/{exchange}/{symbol}?period={duration}` — Get the average price for a given period from a specific exchange
 
 #### Data Mode API
 
-- `POST /mode/test` - Переключиться в Test Mode
-- `POST /mode/live` - Переключиться в Live Mode
+* `POST /mode/test` — Switch to **Test Mode**
+* `POST /mode/live` — Switch to **Live Mode**
 
 #### System Health
 
-- `GET /health` - Статус системы (соединения, доступность Redis)
+* `GET /health` — Check system health (connections, Redis availability, etc.)
 
-## Структура проекта
+## Project Structure
 
 ```
 marketflow/
-├── cmd/                 # Точка входа приложения
-├── internal/            # Внутренние пакеты
-│   ├── adapters/        # Адаптеры
-│   │   ├── exchange/    # Адаптеры бирж
+├── cmd/                 # Application entry point
+├── internal/            # Internal packages
+│   ├── adapters/        # Adapters
+│   │   ├── exchange/    # Exchange adapters
 │   │   ├── handlers/    # HTTP handlers
-│   │   ├── postgres/    # PostgreSQL адаптер
-│   │   └── redis/       # Redis адаптер
-│   ├── application/     # Use cases и сервисы
-│   │   ├── aggregator/  # Агрегация данных
-│   │   ├── mode/        # Управление режимами
-│   │   ├── usecase/     # Бизнес-логика
+│   │   ├── postgres/    # PostgreSQL adapter
+│   │   └── redis/       # Redis adapter
+│   ├── application/     # Use cases and services
+│   │   ├── aggregator/  # Data aggregation
+│   │   ├── mode/        # Mode management
+│   │   ├── usecase/     # Business logic
 │   │   └── worker/      # Worker pool
-│   ├── bootstrap/       # Инициализация приложения
-│   ├── core/            # Основные утилиты
-│   │   ├── apperrors/   # Ошибки приложения
-│   │   ├── config/      # Конфигурация
-│   │   └── utils/       # Вспомогательные утилиты
-│   └── domain/          # Доменный слой
-│       ├── models/      # Модели данных
-│       └── ports/       # Интерфейсы
-├── script/              # Скрипты
-│   └── load_images.sh   # Скрипт загрузки образов бирж
-└── docker-compose.yml   # Docker Compose конфигурация
+│   ├── bootstrap/       # Application initialization
+│   ├── core/            # Core utilities
+│   │   ├── apperrors/   # Application errors
+│   │   ├── config/      # Configuration
+│   │   └── utils/       # Helper utilities
+│   └── domain/          # Domain layer
+│       ├── models/      # Data models
+│       └── ports/       # Interfaces
+├── script/              # Scripts
+│   └── load_images.sh   # Exchange image loading script
+└── docker-compose.yml   # Docker Compose configuration
 ```
 
-## Обрабатываемые торговые пары
+## Supported Trading Pairs
 
-Система обрабатывает следующие криптовалютные пары:
-- BTCUSDT
-- DOGEUSDT
-- TONUSDT
-- SOLUSDT
-- ETHUSDT
+The system processes the following cryptocurrency pairs:
 
-## База данных
+* BTCUSDT
+* DOGEUSDT
+* TONUSDT
+* SOLUSDT
+* ETHUSDT
 
-В PostgreSQL создается таблица `birge_prices` со следующей структурой:
+## Database
+
+A `birge_prices` table is created in PostgreSQL with the following schema:
 
 ```sql
 CREATE TABLE birge_prices (
@@ -184,17 +193,20 @@ CREATE INDEX idx_symbol_time ON birge_prices(pair_name, timestamp);
 CREATE INDEX idx_symbol_exchange ON birge_prices(pair_name, exchange);
 ```
 
-## Логирование
+## Logging
 
-Используется пакет `log/slog` для логирования с различными уровнями:
-- Info: Информационные сообщения
-- Warning: Предупреждения
-- Error: Ошибки
+The system uses Go’s `log/slog` package with different logging levels:
+
+* **Info** — informational messages
+* **Warning** — warnings
+* **Error** — errors
 
 ## Graceful Shutdown
 
-Приложение корректно обрабатывает сигналы SIGINT и SIGTERM, обеспечивая clean shutdown всех компонентов.
+The application gracefully handles **SIGINT** and **SIGTERM** signals, ensuring clean shutdown of all components.
 
-## Мониторинг
+## Monitoring
 
-Эндпоинт `/health` предоставляет информацию о состоянии системы, включая доступность Redis и соединений с биржами.
+The `/health` endpoint provides system health information, including Redis and exchange connection status.
+
+---
