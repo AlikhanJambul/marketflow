@@ -1,5 +1,3 @@
----
-
 # MarketFlow: Real-Time Market Data Processing System
 
 ## Description
@@ -208,5 +206,3 @@ The application gracefully handles **SIGINT** and **SIGTERM** signals, ensuring 
 ## Monitoring
 
 The `/health` endpoint provides system health information, including Redis and exchange connection status.
-
----
